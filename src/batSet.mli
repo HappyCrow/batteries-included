@@ -471,10 +471,10 @@ val iter: ('a -> unit) -> 'a t -> unit
     with respect to the ordering over the type of the elements. *)
 
 val at_rank_exn: int -> 'a t -> 'a
-  (** [at_rank_exn i s] returns element at rank [i] in [s].
-      @raise Not_found if [s = empty].
-      @raise Invalid_argument error_message if [i < 0 || i >= cardinal s]
-      @since NEXT_RELEASE *)
+(** [at_rank_exn i s] returns element at rank [i] in [s].
+    @raise Not_found if [s = empty].
+    @raise Invalid_argument error_message if [i < 0 || i >= cardinal s]
+    @since NEXT_RELEASE *)
 
 val map: ('a -> 'b) -> 'a t -> 'b t
 (** [map f x] creates a new set with elements [f a0],

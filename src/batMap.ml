@@ -105,6 +105,10 @@ module Concrete = struct
     | Node (l, _, _, _, _) -> min_binding l
     | Empty -> raise Not_found
 
+  let get_root = function
+    | Empty -> raise Not_found
+    | Node (_, k, v, _, _) -> k, v
+
   let rec max_binding = function
     | Node (_, k, v, Empty, _) -> k, v
     | Node (_, _, _, r, _) -> max_binding r

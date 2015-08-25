@@ -214,6 +214,32 @@ module Concrete = struct
         loop (f k v (loop acc l)) r in
     loop acc map
 
+  exception Found
+
+  let at_rank_exn i m =
+    if i < 0 then invalid_arg "Map.at_rank_exn: i < 0";
+    let res = ref (get_root m) in (* raises Not_found if empty *)
+    try
+      let (_: int) =
+        foldi (fun k v j ->
+            if j <> i then j + 1
+            else begin
+              res := (k, v);
+              raise Found
+            end
+          ) m 0
+      in
+      invalid_arg "Map.at_rank_exn: i >= (Map.cardinal s)"
+    with Found -> !res
+
+  (*$T at_rank_exn
+    (empty |> add 1 true |> at_rank_exn 0) = (1, true)
+    (empty |> add 1 true |> add 2 false |> at_rank_exn 1) = (2, false)
+    try ignore(at_rank_exn (-1) empty); false with Invalid_argument _ -> true
+    try ignore(at_rank_exn 0 empty); false with Not_found -> true
+    try ignore(add 1 true empty |> at_rank_exn 1); false with Invalid_argument _ -> true
+  *)
+
   let singleton x d = Node(Empty, x, d, Empty, 1)
 
   (* beware : those two functions assume that the added k is *strictly*
@@ -884,6 +910,7 @@ let map = Concrete.map
 let mapi = Concrete.mapi
 let fold = Concrete.fold
 let foldi = Concrete.foldi
+let at_rank_exn = Concrete.at_rank_exn
 
 (*$Q foldi
   (Q.list Q.small_int) (fun xs -> \
@@ -1060,6 +1087,9 @@ module PMap = struct (*$< PMap *)
 
   let foldi f m acc =
     Concrete.foldi f m.map acc
+
+  let at_rank_exn i m =
+    Concrete.at_rank_exn i m.map
 
   (*$Q foldi
     (Q.list Q.small_int) (fun xs -> \

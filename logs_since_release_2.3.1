@@ -1,0 +1,334 @@
+Gabriel Scherer <gabriel.scherer@gmail.com>	2015-11-12
+
+    ignore deprecation warnings throughout the Batteries codebase
+    
+    Maintaining compatibility with older OCaml versions while avoiding
+    deprecation warnings is just too painful for a standard-library-like
+    project like Batteries: beside -safe-string issues (which can be
+    checked by enabling -safe-string and fixing errors, it is more
+    robustly than relying on deprecation warnings), all deprecation
+    warnings we have are because we rebind or extend deprecated functions,
+    which we need to do to support our user with older OCaml versions or
+    that haven't converted out of deprecated functions yet.
+    
+    We could of course turn any use of a deprecated function into
+    a version-conditional code to avoid the warning on recent OCaml
+    versions. A previous version of this patch had for example:
+    
+        (* silence the deprecation warning *)
+        ##V<4##let lazy_from_val = Lazy.lazy_from_val
+        ##V>=4##let lazy_from_val = Lazy.from_val
+    
+    I doubt this provides any actual advantage in terms of code quality,
+    while that definitely decreases maintainability, so I think it is just
+    not worth it.
+
+Gabriel Scherer <gabriel.scherer@gmail.com>	2015-11-12
+
+    use Bytes instead of String in BatBitSet
+
+Francois BERENGER <francois.berenger@inria.fr>	2015-11-12
+
+    clean must also remove the qtest-generated file all_tests.ml
+    or when you run 'make test' you can get errors which are outdated
+    for example after you do an opam switch to test with a different compiler
+
+Francois BERENGER <francois.berenger@inria.fr>	2015-11-12
+
+    corrected many warnings
+
+Francois BERENGER <francois.berenger@inria.fr>	2015-11-06
+
+    don't forget to run 'make test'
+
+Gabriel Scherer <gabriel.scherer@gmail.com>	2015-08-09
+
+    add testsuite/test_hashtbl with regression tests for #609
+
+Gabriel Scherer <gabriel.scherer@gmail.com>	2015-08-09
+
+    Makefile: create testsuite-only-{byte,native} targets
+
+Gabriel Scherer <gabriel.scherer@gmail.com>	2015-04-07
+
+    batHashtbl: fix a hash computation bug introduced by 4.01 (fixes #609)
+    
+    Martin Neuhäußer reports an important bug in the handling of
+    Hashtbl.Make hashing function in Batteries, caused by the
+    compatibility code to support both pre-4.01 and post-4.01 hash table
+    layouts. This bug is severe: it can turn into a segfault for specific
+    hash values (min_int in the reproduction example).
+
+Gabriel Scherer <gabriel.scherer@gmail.com>	2015-11-06
+
+    synchronize BatText.nsplit to match BatString.nsplit (fixes #561)
+    
+    The BatText.nsplit implementation seems to suffer from a off-by-one
+    offset error. The present commit changes its implementation to reuse
+    exactly the more battle-tested implementation of BatString.split.
+    
+    A consequence of this change are two small changes of behavior, that
+    corresponds to non-specified aspects of BatText.nsplit and arguably
+    fix bugs:
+    - nsplit now raises and (Invalid_argugment ...) exception if the
+      separator passed is empty (splitting on it makes no sense)
+      (the previous implementation would loop endlessly)
+    
+    - on two consecutive occurences of the separate, nsplit now inserts an
+      empty text in the sequence:
+        nsplit "a//b/c" "/"
+      is
+        ["a"; ""; "b"; "c"]
+      rather than
+        ["a"; "b"; "c"]
+      as previously.
+    
+      This ensures that for any `sep` and `str`, we have
+        `join sep (split str sep)) = str`
+
+Francois BERENGER <francois.berenger@inria.fr>	2015-11-05
+
+    repared quick check test for mid
+
+Francois BERENGER <francois.berenger@inria.fr>	2015-11-04
+
+    2.3.2 became 2.4
+
+Francois BERENGER <francois.berenger@inria.fr>	2015-11-04
+
+    changed NEXT_RELEASE tags by the upcoming version number
+
+xvw <xavier.vdw@gmail.com>	2015-09-10
+
+    Fix BatLazyList.remove_all_such documentation
+
+berenger <you@example.com>	2015-09-09
+
+    better ocamldoc for BatMap.update
+
+Francois BERENGER <francois.berenger@inria.fr>	2015-08-31
+
+    added Map.pop_min_binding and Map.pop_max_binding to reflect what is in Set
+
+Gabriel Scherer <gabriel.scherer@gmail.com>	2015-08-28
+
+    fix at_rank_exn compilation
+
+Francois BERENGER <francois.berenger@inria.fr>	2015-08-25
+
+    modified Map.update to behave as Set.update
+
+Francois BERENGER <francois.berenger@inria.fr>	2015-08-25
+
+    added Map.at_rank_exn
+
+Francois BERENGER <francois.berenger@inria.fr>	2015-08-25
+
+    shorter exception strings in at_rank_exn
+
+Francois BERENGER <francois.berenger@inria.fr>	2015-08-17
+
+    added Map.update to reflect Set.update
+    note that Map.add is already an update but not requiring the binding
+    to be already present
+
+Aleksey Z. Arens <azarens@uw.edu>	2015-04-16
+
+    added an interleave utility function to the BatEnum module
+
+Gabriel Scherer <gabriel.scherer@gmail.com>	2015-08-09
+
+    fix _tags warnings settings
+
+Ralf Vogler <ralf.vogler@gmail.com>	2015-07-23
+
+    expose `Format.asprintf` for V>=4.01, fixes #597
+
+Francois BERENGER <francois.berenger@inria.fr>	2015-06-22
+
+    most generic version of BatSet.update
+
+Francois BERENGER <francois.berenger@inria.fr>	2015-06-22
+
+    updated ocamldoc
+
+Francois BERENGER <francois.berenger@inria.fr>	2015-06-22
+
+    added BatSet.at_rank_exn
+
+Kevin Brubeck Unhammer <unhammer@fsfe.org>	2015-06-15
+
+    qtests for BatUTF8.enum
+
+Kevin Brubeck Unhammer <unhammer@fsfe.org>	2014-10-09
+
+    BatUTF8.enum, using Enum.from and look
+
+Gabriel Scherer <gabriel.scherer@gmail.com>	2015-06-14
+
+    Move the prefilterin logic from Makefile to ocamlbuild
+    
+    Fixes #615: "make coverage" is broken.
+    
+    The current "make coverage" failure occurs as the coverage-checking
+    tool attempts to access "src/batInnerPervasives.mlv" and does not find
+    the file. It looks for this file because it is present in the
+    lexer-directive comments of the preprocessed file
+    (src/batInnerPervasives.ml), and it makes sense for a coverage
+    checking to display covered lines in terms of the source file instead
+    of post-filtering file (which is not what developers see). But because
+    the prefilter step currently happens purely in Make-land, before
+    ocamlbuild is invoked, ocamlbuild does not know about this .mlv file
+    and does not copy it in the _build directory, from where the coverage
+    preprocessing is started.
+    
+    The solution to this problem is to teach ocamlbuild about the .mlv
+    preprocessing step, instead of doing it ahead-of-time in the
+    Makefile. Now ocamlbuild decides which .mlv to prefilter, and copies
+    them to _build along the process, which makes "make coverage work
+    again". This has one downside and some upsides.
+    
+    Downside:
+    - The prefiltering logic was previously in the Makefile: (simple, easy
+      to read, most programmers are familiar with it. It is now in
+      myocamlbuild.ml: less simple, most programmers avoid touching it,
+      and it has a bit of cruft due to support for really old ocamlbuild
+      versions.
+    
+    Upsides:
+    - No more need to explicitly list all files to preprocess in the
+      Makefile. This had had been a source of minor inconvenience when
+      adding to the set of such files; but admittedly this could be
+      automated at the Makefile level as well).
+    
+    - No more need to use "make clean-prefilter" when unsure whether the
+      changes to a .mlv file have been taken into acount; now ocamlbuild
+      tracks dependencies for .mlv (and prefilter.byte, which was
+      previously mostly untracked by the build system) as any other file,
+      and will only rebuild them when needed. This is a major improvement
+      in convenience when manipulating these files.
+
+Francois BERENGER <francois.berenger@inria.fr>	2015-06-11
+
+    added doc, tests and implementation for of_array
+
+Francois BERENGER <francois.berenger@inria.fr>	2015-06-11
+
+    implementation, doc and tests for to_array (tests also for to_list)
+
+Francois BERENGER <francois.berenger@inria.fr>	2015-06-11
+
+    added pop_max on top of pop_min
+
+Francois BERENGER <francois.berenger@inria.fr>	2015-06-11
+
+    tests, doc and implementation for BatSet.pop_min
+
+Gabriel Scherer <gabriel.scherer@gmail.com>	2015-04-17
+
+    provide implementations of new pp_* functions for older OCaml versions
+    
+    The implementations are inspired by the original proposal of Daniel Bünzli in
+      http://caml.inria.fr/mantis/view.php?id=6009
+
+Gabriel Scherer <gabriel.scherer@gmail.com>	2015-03-26
+
+    harden the implementation of BatSplay against immutable-data compiler optims
+    
+    BatSplay uses a bit of type-checking magic to respect the Map
+    interface (which requires map types to be covariant) while internally
+    keeping a mutable reference for (inobservable) rebalancing
+    mutations. The previous implementation is safe for the current
+    versions of the OCaml compiler, but has the fundamental issue of
+    mutating (through Obj magic) constructed values of a known-immutable
+    type.
+    
+    The new implementation creates values at an immutable type, and then
+    magically coerce them into the covariant immutable type. This ensures
+    that the compiler knows (at value-creation time) that the allocated
+    memory is *not* immutable -- this is the same technique we use for
+    destination-passing-style lists.
+    
+    This trick of "covariant mutable references" can be isolated as
+    a small submodule, which is then used (internally) throughout the
+    BatSplay implementation.
+    
+    Thanks to Pierre Chambart for the discussion that led to this change.
+
+Francois BERENGER <francois.berenger@inria.fr>	2015-01-27
+
+    simpler version of interleave in batlist
+
+Herry <herry13@gmail.com>	2015-01-23
+
+    Implement BatOption.Infix.(>>=)
+
+Anders Fugmann <anders@fugmann.net>	2015-01-16
+
+    Rearrange comment
+
+Anders Fugmann <af@issuu.com>	2015-01-16
+
+    Add comments to modify_opt on growing the hash table when inserting new elements + minor indentation changes
+
+Anders Fugmann <af@issuu.com>	2015-01-15
+
+    Have the hashtbl reference the new key for Hashtbl.modify instead of the previous key. This is the same semantics as Hashtbl.replace
+
+Anders Fugmann <af@issuu.com>	2015-01-15
+
+    Reimplement more efficient modify_opt and modify_def. The functions only does one lookup if the key is already in the table. If the key is not found modify_opt calls add to add the key in order to ensure that the hashtbl is grown if needed.
+
+Christoph Höger <christoph.hoeger@tu-berlin.de>	2015-01-03
+
+    Add comment again
+    
+    Signed-off-by: Christoph Höger <christoph.hoeger@tu-berlin.de>
+
+Christoph Höger <christoph.hoeger@tu-berlin.de>	2015-01-03
+
+    Add pp_print_list and pp_print_text
+    
+    These were introduced in 4.02
+    
+    Signed-off-by: Christoph Höger <christoph.hoeger@tu-berlin.de>
+
+Quentin Stievenart <quentin.stievenart@gmail.com>	2014-12-22
+
+    Fix description of LazyList.range
+    
+    The previous description was incorrect. b <= a matches the implementation.
+
+Max Mouratov <mmouratov@gmail.com>	2014-11-23
+
+    ChangeLog
+
+Max Mouratov <mmouratov@gmail.com>	2014-05-20
+
+    Added "@since 2.4.0"
+
+Max Mouratov <mmouratov@gmail.com>	2014-05-19
+
+    New: Enum.uniq_by, Enum.uniqq
+
+Max Mouratov <mmouratov@gmail.com>	2014-05-19
+
+    Fix: Enum.uniq should use structural comparison
+
+Francois BERENGER <francois.berenger@inria.fr>	2014-11-18
+
+    final proposal for Unix.run_and_read
+
+Sang Kil Cha <sangkil.cha@gmail.com>	2014-11-16
+
+    use hashmap to speed up lru_cache
+
+Gabriel Scherer <gabriel.scherer@gmail.com>	2014-10-28
+
+    add lexer location directives in prefilter.ml
+
+Gabriel Scherer <gabriel.scherer@gmail.com>	2014-10-01
+
+    Revert "Revert "Queue: add filter, filter_inplace (previously filter), filter_map""
+    
+    Those functions should be available in NEXT_RELEASE.

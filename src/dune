@@ -1,0 +1,12 @@
+
+(executable
+  (name prefilter)
+  (modules prefilter)
+  (libraries str)
+  (modes byte))
+
+(library
+  (name batList)
+  (public_name batList)
+  (flags (:standard -pp _build/default/src/prefilter.bc))
+  (modules batList))

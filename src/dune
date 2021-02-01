@@ -8,5 +8,11 @@
 (library
   (name batList)
   (public_name batList)
-  (flags (:standard -pp _build/default/src/prefilter.bc))
-  (modules batList))
+;;  (preprocessor_deps prefilter)
+  (preprocess
+    (action
+      (system "./prefilter.bc %{input-file}")))
+  (modules batList batEnum batInterfaces batInnerIO batConcurrent
+  batOrd batInnerWeaktbl batBytesCompat batRef batSet batSeq batInnerShuffle
+  batPrintf batBuffer batString batInt batNumber batInt32 batInt64 batNativeint
+  batIO batUnix batFloat batChar))
